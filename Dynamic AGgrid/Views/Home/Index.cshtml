@@ -1,0 +1,166 @@
+﻿@model Dynamic_AGgrid.Models.Student;
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>JavaScript example</title>
+    <meta charSet="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style media="only screen">
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        html {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        body {
+            padding: 1rem;
+            overflow: auto;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Rollno" class="control-label"></label>
+                    <input asp-for="Rollno" class="form-control" />
+                    <span asp-validation-for="Rollno" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Section" class="control-label"></label>
+                    <input asp-for="Section" class="form-control" />
+                    <span asp-validation-for="Section" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Branch" class="control-label"></label>
+                    <input asp-for="Branch" class="form-control" />
+                    <span asp-validation-for="Branch" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ContactNo" class="control-label"></label>
+                    <input asp-for="ContactNo" class="form-control" />
+                    <span asp-validation-for="ContactNo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <br />
+    <br />
+    <div id="myGrid" class="ag-theme-alpine" style="height: 400px; width:1000px;"></div>
+   
+
+
+    <script>
+
+
+        function getListOfRowData() {
+            fetch("/Home/GetData")
+                .then(response => response.json())
+                .then(data => {
+
+                    gridOptions.api.setRowData(data);
+                });
+
+        }
+        var gridData = getListOfRowData();
+        // console.log(gridData);
+
+        var gridOptions = {
+            columnDefs: [
+                { field: 'name', headerName: 'Name' },
+                { field: 'rollno', headerName: 'Rollno' },
+                { field: 'section', headerName: 'Section' },
+                { field: 'branch', headerName: 'Branch' },
+                { field: 'contactNo', headerName: 'ContactNo' },
+                {
+                    headerName: 'Action',
+
+                    cellRenderer: function (params) {
+
+                        return `<button class="btn-delete" onclick="Deleteitem(${params.data.id})">Del Data</button>`;
+
+                    },
+                    editable: false
+                },
+
+            ],
+            defaultColDef: {
+                sortable: true,
+                filter: true,
+                editable:true,
+            },
+                    onCellValueChanged: function (params) {
+                    $.ajax({
+                        url: '/Home/EditEmployee',
+                        type: 'put',
+                        data: params.data,
+                        success: function (response) {
+                            if (response.success) {
+
+                            }
+                            else {
+
+                            }
+                        },
+                        error: function () {
+
+                        }
+                    });
+            }
+        };
+        const eGridDiv = document.getElementById("myGrid");
+
+        new agGrid.Grid(eGridDiv, gridOptions);
+        function Deleteitem(Id) {
+            if (confirm('are you sure to want to delete data')) {
+                $.ajax({
+
+                    url: '/Home/Delete/' + Id,
+                    type: 'POST',
+                    success: function () {
+                        location.reload();
+                    },
+                    error: function () {
+
+                        alert('an error occoured while deleteing the item');
+
+                    },
+
+                });
+            };
+        };
+
+       
+
+    </script>
+</body>
+
+</html>
